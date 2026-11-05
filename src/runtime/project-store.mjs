@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {randomUUID} from 'node:crypto';
+const check=(ok,code)=>{if(!ok)throw Error(code);};
+export class ProjectStore{
+ constructor({home,root='/workspace'}){this.root=path.resolve(root);this.file=path.join(home,'.isolation/projects.json');fs.mkdirSync(path.dirname(this.file),{recursive:true,mode:0o700});let rows;try{rows=JSON.parse(fs.readFileSync(this.file,'utf8'));check(Array.isArray(rows),'PROJECT_STATE_INVALID');}catch(e){if(e.code!=='ENOENT')throw e;rows=[];}this.projects=new Map(rows.map(p=>[p.id,p]));if(!this.projects.has('legacy'))this.projects.set('legacy',{id:'legacy',name:'原有工作区',root:this.root,legacy:true,createdAt:new Date().toISOString()});this.save();}
+ save(){const temp=this.file+'.tmp';fs.writeFileSync(temp,JSON.stringify(this.list())+'\n',{mode:0o600});fs.renameSync(temp,this.file);}
+ list(){return [...this.projects.values()];}
+ safe(value,{missing=false}={}){check(typeof value==='string'&&value.length<=4096&&!/[\x00-\x1f]/.test(value),'INVALID_PROJECT_PATH');const full=path.resolve(this.root,value);check(full===this.root||full.startsWith(this.root+path.sep),'PROJECT_PATH_OUTSIDE_WORKSPACE');let cursor=this.root;for(const part of path.relative(this.root,full).split(path.sep).filter(Boolean)){cursor=path.join(cursor,part);try{const stat=fs.lstatSync(cursor);check(!stat.isSymbolicLink(),'PROJECT_SYMLINK_NOT_ALLOWED');check(stat.isDirectory(),'PROJECT_NOT_DIRECTORY');}catch(e){if(e.code==='ENOENT'&&missing)break;throw e;}}return full;}
+ get(id='legacy'){const project=this.projects.get(id);check(project,'PROJECT_NOT_FOUND');this.safe(project.root);return project;}
+ create({name,path:directory}={}){check(typeof name==='string','INVALID_PROJECT_NAME');const projectName=name.trim().normalize('NFC');check(projectName.length>0&&projectName.length<=100&&!/[\x00-\x1f/\\]/.test(projectName)&&!['.','..'].includes(projectName),'INVALID_PROJECT_NAME');const id=randomUUID(),root=this.safe(directory?.trim()||path.join('projects',projectName),{missing:true});check(root!==this.root,'PROJECT_PATH_ALREADY_USED');for(const other of this.projects.values())if(!other.legacy)check(root!==other.root&&!root.startsWith(other.root+path.sep)&&!other.root.startsWith(root+path.sep),'PROJECT_PATH_OVERLAP');fs.mkdirSync(root,{recursive:true,mode:0o700});this.safe(root);const project={id,name:projectName,root,legacy:false,createdAt:new Date().toISOString()};this.projects.set(id,project);this.save();return project;}
+ forHistory(cwd){if(!cwd)return this.get('legacy');const root=this.safe(cwd);const found=this.list().find(p=>p.root===root);if(found)return found;return this.create({name:path.basename(root),path:root});}
+}

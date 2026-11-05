@@ -1,0 +1,1204 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
+  background: #fafafa;
+  color: #09090b;
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+pre,
+.mono {
+  font-family: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+}
+
+/* 细滚动条：消除原生滚动条粗重感 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+.ant-Sender-content textarea {
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+}
+
+/* 去除 AntD Card 默认厚重感，改为瑞士极简细边框 */
+.ant-card {
+  border-color: #e4e4e7;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+.ant-card-head {
+  border-bottom-color: #f4f4f5 !important;
+  min-height: 40px !important;
+}
+.ant-card-head-title {
+  font-weight: 600 !important;
+  color: #18181b !important;
+}
+
+.work-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e4e4e7;
+  background: #ffffff;
+}
+
+.code-textarea {
+  width: 100%;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 12px;
+  outline: none;
+  font-family: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #18181b;
+  background: #fafafa;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.code-textarea:focus {
+  border-color: #18181b;
+  background: #ffffff;
+}
+
+.desktop-shell { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+.window-titlebar { display: flex; flex: 0 0 42px; height: 42px; background: #fafafa; border-bottom: 1px solid #e8e8e8; user-select: none; }
+.window-drag-region { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; padding-left: 14px; }
+.window-drag-region > * { pointer-events: none; }
+.window-brand { color: #262626; font-size: 13px; font-weight: 600; }
+.window-brand span { margin-left: 5px; color: #737373; font-size: 12px; font-weight: 500; letter-spacing: .02em; }
+.window-controls { display: flex; height: 100%; }
+.window-controls button { display: grid; place-items: center; width: 46px; padding: 0; border: 0; background: transparent; color: #666666; font-size: 12px; cursor: default; }
+.window-controls button:hover { background: #e9e9e9; }
+.window-controls button:focus-visible { outline: 2px solid #7a7a7a; outline-offset: -3px; }
+.window-controls .window-close:hover { color: white; background: #c94048; }
+.app-shell { flex: 1; min-height: 0; overflow: hidden; background: #fafafa; }
+.main-layout { min-width: 0; height: 100%; background: #fafafa; }
+.content { flex: 1; min-height: 0; }
+.history-page { display: flex; flex-direction: column; overflow: hidden; }
+.settings-content { display: flex; flex-direction: column; align-items: center; overflow: auto; padding: 28px 36px; }
+.settings-content > * { width: 100%; max-width: 960px; margin-inline: auto; flex-shrink: 0; }
+.settings-sidebar { border-right: 1px solid #e4e4e7; background: #fafafa !important; }
+.settings-sidebar .ant-menu { background: transparent; border-inline-end: none !important; }
+.back-to-chat { margin: 12px; }
+.settings-label { padding: 20px 24px 12px; font-weight: 600; color: #71717a; }
+.settings-heading { margin-bottom: 20px; }
+.settings-heading h4 { margin: 0; }
+.console-notices { padding-bottom: 12px; flex-shrink: 0; }
+.history-page > .console-notices { padding: 12px 16px 0; }
+.history-layout { grid-template-columns: 260px minmax(0, 1fr); }
+.workspace-sidebar-footer { border-top: 1px solid #e4e4e7; padding: 8px; }
+.workspace-sidebar-footer .ant-btn { display: flex; align-items: center; justify-content: flex-start; gap: 10px; min-height: 36px; }
+.chat-controls { padding: 4px 20px; flex-shrink: 0; }
+.chat-controls .ant-btn { color: #71717a; font-size: 12px; }
+.conversation-empty { padding: 64px 16px; text-align: center; }
+.conversation-empty h3 { font-weight: 500; }
+.session-settings { max-width: 600px; }
+.save-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; border-top: 1px solid #e4e4e7; background: white; }
+.save-hint { color: #71717a; font-size: 12px; margin-top: 4px; }
+
+@media (max-width: 1000px) {
+  .history-layout { grid-template-columns: 224px minmax(0, 1fr); }
+  .conversation-heading { flex-wrap: wrap; height: auto !important; min-height: 48px; padding-block: 8px !important; gap: 4px !important; }
+  .conversation-heading > div:last-child { flex-wrap: wrap; gap: 4px !important; }
+  .settings-content { padding: 24px; }
+}
+
+@media (max-width: 680px) {
+  .history-layout { grid-template-columns: 180px minmax(0, 1fr); }
+  .conversation-heading .ant-tabs-tab + .ant-tabs-tab { margin-left: 12px; }
+  .conversation-heading { padding-inline: 12px !important; }
+  .chat-controls { padding-inline: 8px; }
+  .settings-sidebar { flex: 0 0 160px !important; min-width: 160px !important; width: 160px !important; max-width: 160px !important; }
+  .settings-content { padding: 16px; }
+  .save-bar { flex-wrap: wrap; padding: 12px; }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.online {
+  background: #666666;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+.status-dot.warning {
+  background: #909090;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+.status-dot.offline {
+  background: #a1a1aa;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.thread-details-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: #18181B;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+.thread-details-row:hover {
+  background: #F4F4F5;
+}
+.thread-details-row:active {
+  background: #E4E4E7;
+}
+
+@keyframes qibox-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Right Auxiliary System v2 (T3 Code & Google Antigravity 2.0 Design Tokens)
+   ========================================================================== */
+
+/* 1. Top-Right Header Control Cluster */
+.qibox-header-control-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.qibox-header-control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #52525B;
+  cursor: pointer;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+.qibox-header-control-btn:hover {
+  background: rgba(9, 9, 11, 0.05);
+  color: #09090B;
+}
+
+.qibox-header-control-btn.is-active {
+  background: rgba(9, 9, 11, 0.075);
+  color: #09090B;
+}
+
+/* 2. Floating HUD Overview Card (ThreadDetailsCard v2 · 280px Dropdown Glass) */
+.qibox-hud-floating-card {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 280px;
+  max-height: calc(100% - 160px);
+  overflow-y: auto;
+  z-index: 16;
+  background: rgba(255, 255, 255, 0.93);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(24, 24, 27, 0.085);
+  border-radius: 16px;
+  box-shadow:
+    0 18px 40px -12px rgba(15, 23, 42, 0.13),
+    0 2px 6px -1px rgba(15, 23, 42, 0.04);
+}
+
+.qibox-hud-card-body {
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.qibox-hud-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.qibox-hud-section + .qibox-hud-section {
+  border-top: 1px solid rgba(24, 24, 27, 0.065);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.qibox-hud-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 8px 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #71717A;
+}
+
+.qibox-hud-mini-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #71717A;
+  cursor: pointer;
+  padding: 0;
+}
+
+.qibox-hud-mini-plus:hover {
+  background: rgba(9, 9, 11, 0.06);
+  color: #09090B;
+}
+
+/* Standard 32px HUD Row */
+.qibox-hud-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 31px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #27272A;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.qibox-hud-row:hover {
+  background: rgba(9, 9, 11, 0.042);
+  color: #09090B;
+}
+
+.qibox-hud-row-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.qibox-hud-row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #52525B;
+  flex-shrink: 0;
+}
+
+.qibox-hud-row-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qibox-hud-env-dot {
+  position: absolute;
+  right: -2px;
+  bottom: -1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  border: 1.5px solid #FFFFFF;
+}
+
+/* Split Control Row (Left Primary Button + Right Hover-Divided Trigger) */
+.qibox-hud-split-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 31px;
+  border-radius: 8px;
+  transition: background-color 0.12s ease;
+}
+
+.qibox-hud-split-row:hover {
+  background: rgba(9, 9, 11, 0.042);
+}
+
+.qibox-hud-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 8px;
+  border: none;
+  border-radius: 8px 0 0 8px;
+  background: transparent;
+  color: #27272A;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+
+.qibox-hud-row-main:hover {
+  color: #09090B;
+}
+
+.qibox-hud-split-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  background: transparent;
+  color: #71717A;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.qibox-hud-split-trigger::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: transparent;
+  transition: background-color 0.12s ease;
+}
+
+.qibox-hud-split-row:hover .qibox-hud-split-trigger::before {
+  background: rgba(24, 24, 27, 0.1);
+}
+
+.qibox-hud-split-trigger:hover {
+  background: rgba(9, 9, 11, 0.045);
+  color: #09090B;
+}
+
+.qibox-hud-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #71717A;
+  cursor: pointer;
+}
+
+.qibox-hud-icon-action:hover {
+  background: rgba(9, 9, 11, 0.06);
+  color: #09090B;
+}
+
+.qibox-hud-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #059669;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.qibox-hud-live-dot {
+  width: 5.5px;
+  height: 5.5px;
+  border-radius: 999px;
+  background: #10B981;
+}
+
+/* Usage & Context Subgrid (T3 Code ThreadDetailsUsage) */
+.qibox-hud-usage-grid {
+  display: grid;
+  grid-template-columns: auto minmax(3rem, 1fr) auto;
+  column-gap: 10px;
+  row-gap: 1px;
+  padding: 6px 8px 2px;
+}
+
+.qibox-hud-usage-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  height: 21px;
+  cursor: default;
+}
+
+.qibox-hud-usage-label {
+  font-size: 11px;
+  color: #71717A;
+  white-space: nowrap;
+}
+
+.qibox-hud-usage-track {
+  position: relative;
+  height: 3px;
+  width: 100%;
+  border-radius: 999px;
+  background: rgba(24, 24, 27, 0.09);
+  overflow: visible;
+}
+
+.qibox-hud-usage-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.qibox-hud-usage-tick {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1.5px;
+  background: rgba(24, 24, 27, 0.28);
+  border-radius: 1px;
+}
+
+.qibox-hud-usage-value {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* 3. Expanded Right Workbench Shell & Tab Bar */
+.qibox-workbench-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #FFFFFF;
+}
+
+.qibox-workbench-tabbar {
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E4E4E7;
+  flex-shrink: 0;
+}
+
+.qibox-workbench-tabs-scroll {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.qibox-workbench-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  max-width: 168px;
+  padding: 0 6px 0 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  color: #71717A;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.qibox-workbench-tab:hover {
+  background: rgba(9, 9, 11, 0.035);
+  color: #27272A;
+}
+
+.qibox-workbench-tab.is-active {
+  background: #F4F4F5;
+  color: #09090B;
+  font-weight: 500;
+  border-color: rgba(24, 24, 27, 0.08);
+}
+
+.qibox-workbench-tab.is-drop-target {
+  border: 1px dashed #18181B;
+}
+
+.qibox-workbench-tab-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.qibox-workbench-tab-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qibox-workbench-tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #A1A1AA;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.qibox-workbench-tab:hover .qibox-workbench-tab-close,
+.qibox-workbench-tab.is-active .qibox-workbench-tab-close {
+  opacity: 1;
+}
+
+.qibox-workbench-tab-close:hover {
+  background: rgba(9, 9, 11, 0.08);
+  color: #09090B;
+}
+
+.qibox-workbench-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #52525B;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.qibox-workbench-icon-btn:hover:not(:disabled) {
+  background: rgba(9, 9, 11, 0.055);
+  color: #09090B;
+}
+
+.qibox-workbench-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.qibox-workbench-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+
+/* 4. Minimal Empty Surface Launcher (T3 Code RightPanelEmptyState) */
+.qibox-empty-surface-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  outline: none;
+  background: #FAFAFA;
+}
+
+.qibox-empty-surface-menu {
+  width: 100%;
+  max-width: 256px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qibox-empty-surface-title {
+  padding: 0 10px 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #71717A;
+}
+
+.qibox-empty-surface-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 34px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #52525B;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.qibox-empty-surface-item.is-selected,
+.qibox-empty-surface-item:hover:not(:disabled) {
+  background: rgba(9, 9, 11, 0.055);
+  color: #09090B;
+}
+
+.qibox-empty-surface-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.qibox-empty-surface-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qibox-empty-surface-icon {
+  display: inline-flex;
+  color: #71717A;
+}
+
+.qibox-kbd {
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  color: #71717A;
+  font-family: var(--font-mono);
+}
+
+/* 5. Shared Surface Sub-Toolbar & Stacked Diff Review */
+.qibox-surface-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #FFFFFF;
+}
+
+.qibox-surface-toolbar {
+  height: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  background: #FAFAFA;
+  border-bottom: 1px solid #E4E4E7;
+  flex-shrink: 0;
+}
+
+.qibox-surface-toolbar-left,
+.qibox-surface-toolbar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qibox-branch-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #18181B;
+  background: #F4F4F5;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.qibox-toolbar-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 25px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid #E4E4E7;
+  background: #FFFFFF;
+  color: #27272A;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.qibox-toolbar-ghost-btn:hover:not(:disabled) {
+  background: #F4F4F5;
+  border-color: #D4D4D8;
+}
+
+.qibox-toolbar-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 25px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid #18181B;
+  background: #18181B;
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.12s ease;
+}
+
+.qibox-toolbar-primary-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.qibox-toolbar-primary-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.qibox-diff-stream {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #FAFAFA;
+}
+
+.qibox-diff-file-card {
+  border: 1px solid #E4E4E7;
+  border-radius: 10px;
+  background: #FFFFFF;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.qibox-diff-file-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 34px;
+  padding: 0 10px;
+  background: #FFFFFF;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qibox-diff-file-header:hover {
+  background: #FAFAFA;
+}
+
+.qibox-diff-file-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.qibox-diff-file-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.qibox-diff-file-body {
+  border-top: 1px solid #F4F4F5;
+}
+
+.qibox-diff-file-body > div {
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.qibox-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 21px;
+  padding: 0 7px;
+  border-radius: 5px;
+  border: 1px solid #E4E4E7;
+  background: #FFFFFF;
+  color: #52525B;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.qibox-stage-pill.is-staged {
+  border-color: #BBF7D0;
+  background: #F0FDF4;
+  color: #15803D;
+}
+
+/* 6. Files Surface & Interactive Line-Selectable Code Viewer */
+.qibox-file-tree-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.qibox-file-tree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 30px;
+  padding-right: 6px;
+  border-radius: 7px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qibox-file-tree-row:hover {
+  background: rgba(9, 9, 11, 0.04);
+}
+
+.qibox-file-tree-row.is-selected {
+  background: rgba(9, 9, 11, 0.065);
+}
+
+.qibox-file-tree-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.qibox-file-tree-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.qibox-file-tree-row:hover .qibox-file-tree-actions {
+  opacity: 1;
+}
+
+.qibox-file-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #FFFFFF;
+}
+
+.qibox-code-table {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 1.55;
+  padding: 6px 0;
+}
+
+.qibox-code-row {
+  display: flex;
+  align-items: stretch;
+  min-width: max-content;
+}
+
+.qibox-code-row:hover {
+  background: #FAFAFA;
+}
+
+.qibox-code-row.is-selected {
+  background: #EFF6FF;
+}
+
+.qibox-code-gutter {
+  width: 46px;
+  padding: 0 10px 0 6px;
+  border: none;
+  border-right: 1px solid #F4F4F5;
+  background: transparent;
+  color: #A1A1AA;
+  font-family: inherit;
+  font-size: 11px;
+  text-align: right;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.qibox-code-gutter:hover {
+  color: #18181B;
+}
+
+.qibox-code-row.is-selected .qibox-code-gutter {
+  color: #1D4ED8;
+  font-weight: 600;
+  border-right-color: #BFDBFE;
+}
+
+.qibox-code-cell {
+  margin: 0;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: inherit;
+  white-space: pre;
+  color: #18181B;
+}
+
+/* 7. Edge-to-Edge Immersive Terminal Surface */
+.qibox-terminal-surface {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #09090B;
+  color: #E4E4E7;
+}
+
+.qibox-terminal-header {
+  height: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  background: #121215;
+  border-bottom: 1px solid #27272A;
+  flex-shrink: 0;
+}
+
+.qibox-terminal-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  min-width: 0;
+  flex: 1;
+}
+
+.qibox-terminal-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 6px 0 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: #A1A1AA;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.qibox-terminal-tab-pill.is-active {
+  color: #F4F4F5;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.qibox-terminal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+.qibox-terminal-tab-kill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #71717A;
+  cursor: pointer;
+}
+
+.qibox-terminal-tab-kill:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #F4F4F5;
+}
+
+.qibox-terminal-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.qibox-terminal-cwd {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #71717A;
+  padding: 0 4px;
+}
+
+.qibox-terminal-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 23px;
+  padding: 0 7px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #D4D4D8;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.qibox-terminal-action-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.qibox-terminal-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.qibox-terminal-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: #450A0A;
+  color: #FCA5A5;
+  font-size: 11.5px;
+}
+
+.qibox-terminal-error button {
+  border: none;
+  background: transparent;
+  color: #FCA5A5;
+  cursor: pointer;
+}
+
+.qibox-terminal-canvas {
+  flex: 1;
+  min-height: 0;
+  padding: 8px 10px;
+  background: #09090B;
+  overflow: hidden;
+}
+
+/* 8. Structured MCP Server Cards */
+.qibox-mcp-card {
+  padding: 10px 12px;
+  border: 1px solid #E4E4E7;
+  border-radius: 10px;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qibox-mcp-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.qibox-mcp-badge {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: #F4F4F5;
+  color: #52525B;
+}
+
+.qibox-mcp-card-cmd {
+  font-size: 11.5px;
+  color: #52525B;
+  background: #FAFAFA;
+  padding: 4px 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qibox-mcp-card-tools {
+  font-size: 11px;
+  color: #27272A;
+  line-height: 1.5;
+}
+

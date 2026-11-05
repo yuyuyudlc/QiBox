@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "projectName": "agent-isolation",
+  "runtime": {
+    "backend": "wsl",
+    "distro": "Ubuntu",
+    "user": "agent"
+  },
+  "environment": {
+    "timezone": "UTC",
+    "locale": "C.UTF-8",
+    "disableNonessentialTraffic": true,
+    "blockWindowsBrowser": true
+  },
+  "network": {
+    "proxyUrl": null
+  },
+  "workspace": {
+    "defaultRoot": "/workspace"
+  },
+  "chat": {
+    "allowedTools": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(node *)",
+      "Bash(pwd)",
+      "Bash(ls *)"
+    ]
+  }
+}

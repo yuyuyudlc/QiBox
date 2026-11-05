@@ -1,0 +1,38 @@
+# Local application data and development tools
+/.runtime/
+/reports/
+/.agents/
+/skills-lock.json
+/.claude/
+/.codex/
+/.ssh/
+
+# Dependencies and build outputs
+node_modules/
+dist/
+target/
+*.tsbuildinfo
+/Isolation Console.exe
+
+# Local configuration, credentials and configuration backups
+/config/*
+!/config/*.example.json
+.env
+.env.*
+!.env.example
+!.env.*.example
+secrets/
+
+# Logs, temporary files and machine-specific editor state
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+Desktop.ini
+/.idea/
+/.vscode/
