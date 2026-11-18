@@ -18,8 +18,8 @@ function readJson(file) {
 
 export function clearRuntimeStateCache() {}
 
-export async function runtimeSnapshot(policy, { wsl: providedWsl } = {}) {
-  const wsl = providedWsl ?? (await wslContext(policy));
+export async function runtimeSnapshot(policy, { wsl: providedWsl, fresh = false } = {}) {
+  const wsl = providedWsl ?? (await wslContext(policy, { fresh }));
   const expectedBuild = buildInfo();
   if (!wsl.available) {
     return {

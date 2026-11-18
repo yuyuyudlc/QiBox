@@ -4,7 +4,7 @@
   "runtime": {
     "backend": "wsl",
     "distro": "Ubuntu",
-    "user": "agent"
+    "user": ""
   },
   "environment": {
     "timezone": "UTC",

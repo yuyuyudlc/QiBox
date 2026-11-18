@@ -306,6 +306,54 @@ async fn save_policy(
     .await
 }
 #[tauri::command]
+async fn setup_wsl(
+    state: tauri::State<'_, ConsoleState>,
+    app: tauri::AppHandle,
+) -> Result<bool, String> {
+    #[cfg(not(windows))]
+    return Err("WSL 配置需要 Windows。".into());
+
+    #[cfg(windows)]
+    {
+        use windows_sys::Win32::System::Threading::CREATE_NEW_CONSOLE;
+
+        let root = state.root.clone();
+        if !root.join("scripts/setup-wsl.sh").is_file() {
+            return Err("找不到 scripts/setup-wsl.sh，请完整解压发布包。".into());
+        }
+        let snapshot = request(&state, &app, "snapshot", json!({})).await?;
+        if snapshot["runtime"]["engineAvailable"] != true {
+            return Err(snapshot["runtime"]["reason"]
+                .as_str()
+                .unwrap_or("请先安装并初始化 WSL2 发行版。")
+                .into());
+        }
+        let gate = state.busy.clone();
+        tauri::async_runtime::spawn_blocking(move || {
+            let policy = &snapshot["policy"];
+            let [Some(distro), Some(user), Some(workspace)] = [
+                policy["runtime"]["distro"].as_str(),
+                policy["runtime"]["user"].as_str(),
+                policy["workspace"]["defaultRoot"].as_str(),
+            ] else {
+                return Err("无法读取 WSL 配置，请刷新运行环境。".into());
+            };
+            let _guard = gate.lock().map_err(|_| "本地操作队列不可用，请重新打开程序".to_string())?;
+            let status = Command::new("wsl.exe")
+                .args(["--distribution", distro, "--user", user, "--cd"])
+                .arg(root)
+                .args(["--exec", "/bin/bash", "scripts/setup-wsl.sh", "--wait", workspace])
+                .env("WSL_UTF8", "1")
+                .creation_flags(CREATE_NEW_CONSOLE)
+                .status()
+                .map_err(|e| format!("无法打开 WSL 配置终端：{e}"))?;
+            Ok(status.success())
+        })
+        .await
+        .map_err(|e| e.to_string())?
+    }
+}
+#[tauri::command]
 async fn run_operation(
     state: tauri::State<'_, ConsoleState>,
     app: tauri::AppHandle,
@@ -580,6 +628,7 @@ fn main() {
             get_snapshot,
             validate_policy,
             save_policy,
+            setup_wsl,
             run_operation,
             claude_sync,
             agent_request,

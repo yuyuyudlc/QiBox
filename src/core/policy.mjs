@@ -18,7 +18,11 @@ function integer(value, min, max, label) {
   check(Number.isInteger(value) && value >= min && value <= max, `Invalid ${label}`);
 }
 
-export function validatePolicy(p) {
+export function isLinuxUsername(user) {
+  return typeof user === 'string' && /^[a-z_][a-z0-9_-]{0,31}$/.test(user);
+}
+
+export function validatePolicy(p, { allowUnresolvedUser = false } = {}) {
   keys(p, ['schemaVersion', 'projectName', 'runtime', 'environment', 'network', 'workspace', 'chat', 'audit'], 'root');
   check(p.schemaVersion === 2, 'Unsupported schemaVersion');
   check(/^[a-z][a-z0-9-]{2,40}$/.test(p.projectName), 'Invalid projectName');
@@ -26,7 +30,7 @@ export function validatePolicy(p) {
   keys(p.runtime, ['backend', 'distro', 'user', 'hostname', 'claudeVersion'], 'runtime');
   check(p.runtime.backend === 'wsl', 'Only WSL2 backend is supported');
   check(typeof p.runtime.distro === 'string' && /^[a-zA-Z0-9._-]{1,64}$/.test(p.runtime.distro), 'Invalid WSL distro name');
-  check(typeof p.runtime.user === 'string' && /^[a-z_][a-z0-9_-]{0,31}$/.test(p.runtime.user), 'Invalid Linux username');
+  check(isLinuxUsername(p.runtime.user) || (allowUnresolvedUser && p.runtime.user === ''), 'Invalid Linux username');
   if (p.runtime.hostname !== undefined) {
     check(typeof p.runtime.hostname === 'string' && /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(p.runtime.hostname), 'Invalid hostname');
   }
@@ -86,11 +90,8 @@ export function validateAllowedTools(tools) {
 
 export function loadPolicy(file = POLICY_PATH) {
   if (file === POLICY_PATH && !fs.existsSync(file)) {
-    try {
-      fs.copyFileSync(path.join(ROOT, 'config/isolation.example.json'), file, fs.constants.COPYFILE_EXCL);
-    } catch (error) {
-      if (error.code !== 'EEXIST') throw error;
-    }
+    const template = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/isolation.example.json'), 'utf8'));
+    return validatePolicy(template, { allowUnresolvedUser: true });
   }
   return validatePolicy(JSON.parse(fs.readFileSync(file, 'utf8')));
 }

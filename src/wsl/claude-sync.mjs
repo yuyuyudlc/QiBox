@@ -164,7 +164,7 @@ export function syncInfo(policy, options = {}) {
   return {
     ...preview,
     networkAllowed: !!preview.endpointHost,
-    targetPath: `/home/${policy.runtime.user || 'agent'}/.claude/settings.json`,
+    targetPath: `${policy.runtime.user ? `/home/${policy.runtime.user}` : '~'}/.claude/settings.json`,
     lastSync,
   };
 }

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { ROOT } from '../core/policy.mjs';
+import { ROOT, POLICY_PATH, isLinuxUsername, loadPolicy } from '../core/policy.mjs';
 import { run } from '../core/process.mjs';
 import { buildInfo } from '../core/build-info.mjs';
 
@@ -24,6 +24,28 @@ export async function runWsl(distro, args, opts = {}) {
     ...opts,
     env: wslEnvVars(opts.env),
   });
+}
+
+export async function loadWslPolicy() {
+  const policy = loadPolicy();
+  if (policy.runtime.user || process.platform !== 'win32') return policy;
+
+  const { distro } = policy.runtime;
+  const distros = await listWslDistros();
+  if (!distros.some((entry) => entry.name === distro && entry.version === 2)) return policy;
+
+  const result = await runWsl(distro, ['id', '-un'], { timeout: 5000 });
+  const user = result.stdout.trim();
+  if (!result.ok || user === 'root' || !isLinuxUsername(user)) return policy;
+
+  policy.runtime.user = user;
+  try {
+    fs.writeFileSync(POLICY_PATH, JSON.stringify(policy, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
+  } catch (error) {
+    if (error.code === 'EEXIST') return loadPolicy();
+    throw error;
+  }
+  return policy;
 }
 
 export function spawnWsl(distro, args, opts = {}) {
@@ -76,9 +98,8 @@ export function toWslPath(winPath) {
 }
 
 export function buildWorkerEnv(policy) {
-  const user = policy.runtime.user || 'agent';
+  const { user } = policy.runtime;
   const env = {
-    HOME: `/home/${user}`,
     USER: user,
     LOGNAME: user,
     TZ: policy.environment.timezone,
@@ -151,7 +172,6 @@ export async function startWslDaemon(policy, { keepChild = true } = {}) {
 
   const workerEnv = {
     ...buildWorkerEnv(policy),
-    ISOLATION_HOME: `/home/${user}`,
     ISOLATION_WORKSPACE: policy.workspace.defaultRoot || '/workspace',
     ISOLATION_RUNTIME_DIR: '/tmp/isolation-agent',
   };

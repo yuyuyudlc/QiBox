@@ -25,6 +25,7 @@ interface ConsoleContextValue {
   chatDraft: ChatPreferences | null;
   setChatDraft: (prefs: ChatPreferences) => void;
   saveChatDraft: () => Promise<void>;
+  setupWsl: () => Promise<void>;
   runOperation: (op: 'up' | 'stop') => Promise<void>;
   handleClaudeSync: (operation: 'info' | 'sync' | 'reset') => Promise<void>;
 }
@@ -131,6 +132,20 @@ export const ConsoleProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
   }, [policy, snapshot, refreshSnapshot, runTask, notify]);
 
+  const setupWsl = useCallback(async () => {
+    await runTask('请在配置终端中按提示操作，结束后按任意键返回。', async () => {
+      const completed = await consoleService.setupWsl();
+      const updated = await refreshSnapshot();
+      if (!completed) {
+        throw new Error('WSL 配置未完成。请根据配置终端的提示重试。sudo 权限问题可参考 README。');
+      }
+      if (!updated?.runtime.dependenciesReady) {
+        throw new Error(updated?.runtime.reason || 'WSL2 依赖检查未通过。');
+      }
+      notify('WSL2 配置完成，可以启动环境。');
+    });
+  }, [refreshSnapshot, runTask, notify]);
+
   const runOperation = useCallback(
     async (op: 'up' | 'stop') => {
       await runTask(OP_LABELS[op], async () => {
@@ -212,6 +227,7 @@ export const ConsoleProvider: React.FC<{ children: React.ReactNode }> = ({ child
         chatDraft,
         setChatDraft,
         saveChatDraft,
+        setupWsl,
         runOperation,
         handleClaudeSync,
       }}

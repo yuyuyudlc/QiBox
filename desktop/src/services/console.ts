@@ -8,6 +8,8 @@ export const consoleService = {
 
   savePolicy: (policy: Policy, expectedHash: string) => tauriInvoke('save_policy', { policy, expectedHash }),
 
+  setupWsl: () => tauriInvoke<boolean>('setup_wsl'),
+
   runOperation: (operation: 'up' | 'stop') =>
     tauriInvoke<{ ok: boolean; output: string; error: string | null }>('run_operation', {
       operation,

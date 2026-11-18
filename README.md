@@ -16,8 +16,28 @@ Windows 桌面上的 Claude Code 工作区。通过 WSL2 运行 Claude Code，�
 
 如果还没有 Ubuntu，在管理员 PowerShell 中运行 `wsl --install -d Ubuntu`，按提示重启并初始化 Linux 用户。用 `wsl -l -v` 确认发行版的 `VERSION` 为 `2`。 [Microsoft WSL 安装指南](https://learn.microsoft.com/zh-cn/windows/wsl/install)
 
+打开栖盒后，在“设置 → 运行环境”点击“配置 WSL”。栖盒通过 `wsl.exe` 直接在所选发行版内运行 `scripts/setup-wsl.sh`，使用已保存的 Linux 用户和工作目录。首次使用时会自动读取 Ubuntu 的默认 Linux 用户。配置终端会补齐 WSL2 内的 Node.js、Claude Code、Claude Agent SDK、`node-pty` 和 Git，并创建缺失的 `/opt/isolation` 和工作目录。遇到 `sudo` 提示时，输入终端所显示用户的 Ubuntu 密码。配置完成后按任意键返回，栖盒会重新检查依赖，再由你点击“启动环境”。也可以在发布包目录单独运行 `Setup-WSL.bat`，完成后在栖盒里点“刷新状态”。
+
+### 处理 sudo 权限
+
+如果配置终端显示 `I'm sorry ... I'm afraid I can't do that` 或提示用户不在 `sudoers` 中，说明该 Linux 用户没有执行安装所需命令的权限。把下面示例中的 `Ubuntu` 和 `qibox` 替换为“运行环境”里显示的发行版与用户名，先在 Windows PowerShell 检查权限。
+
+```powershell
+wsl -d Ubuntu -u qibox -- sudo -l
+```
+
+如果这台电脑的所有者确认该账号应拥有 Ubuntu 管理员权限，可以在同一台电脑的 PowerShell 把它加入 `sudo` 组，再重新执行上面的检查。
+
+```powershell
+wsl -d Ubuntu -u root -- usermod -aG sudo qibox
+```
+
+权限通过后，回栖盒重试“配置 WSL”。如果运行账号应保持普通用户权限，请让 Ubuntu 管理员按下文准备依赖，并让运行账号可以写入 `/opt/isolation` 和工作目录。 [Ubuntu 用户权限说明](https://ubuntu.com/server/docs/how-to/security/user-management/)
+
+### 手动安装
+
 1. 在 Ubuntu 内为运行用户安装 Node.js 24 和 Git，并将 Claude Code 安装到 `/usr/local/bin/claude` 或 `/usr/bin/claude`。后台进程使用 `/usr/local/bin:/usr/bin:/bin`，因此从这个 PATH 也要能找到 `node` 和 `claude`（如果通过 `nvm` 或用户目录安装，可创建软链接到 `/usr/local/bin`）。 [Node.js 24 下载](https://nodejs.org/en/download/archive/v24) · [Claude Code 安装指南](https://code.claude.com/docs/en/setup)
-2. 默认运行用户是 `agent`，也可在桌面设置中填写现有的 Linux 用户（如使用默认 `agent`，请先在 Ubuntu 内创建该用户）。确保该用户能写入 `/opt/isolation` 和工作目录（默认 `/workspace`，若修改“默认工作目录”则需对应目录可写）。在 Ubuntu 内以准备运行栖盒的用户执行：
+2. 首次启动时，栖盒读取发行版的默认 Linux 用户。可以在桌面设置中改用另一个现有用户。确保该用户能写入 `/opt/isolation` 和工作目录（默认 `/workspace`）。在 Ubuntu 内以准备运行栖盒的用户执行：
 
    ```bash
    sudo mkdir -p /opt/isolation /workspace
@@ -36,9 +56,9 @@ Windows 桌面上的 Claude Code 工作区。通过 WSL2 运行 Claude Code，�
 ## 使用发布包
 
 1. 下载并完整解压 `Isolation Console.zip` 到一个可写目录（不要单独移动 `Isolation Console.exe`）。
-2. 运行 `Start-Isolation.bat`。启动脚本检查 Windows 上的 Node.js 和 WSL，然后打开桌面程序。
-3. 进入“设置 → 运行环境”，确认发行版、Linux 用户和默认工作目录，保存后点击“启动环境”。程序会将运行源码同步到 `/opt/isolation/src` 并启动 WSL2 后台服务。
-4. 按下文配置 Claude 和翻译服务，再返回对话界面创建项目、创建会话。
+2. 运行 `Start-Isolation.bat` 打开栖盒，在“设置 → 运行环境”点击“配置 WSL”。依赖已就绪时，可以直接启动环境。
+3. 配置终端结束后，点击“启动环境”。程序会将运行源码同步到 `/opt/isolation/src` 并启动 WSL2 后台服务。
+4. 按下文配置 Claude 和翻译服务，再返回对话界面创建项目和会话。
 
 `Isolation Console.exe` 依赖同目录下的 `src` 和 `config`。环境就绪后也可以直接打开 EXE。
 
@@ -169,6 +189,7 @@ scripts/                  启动与打包脚本
 package.json
 package-lock.json
 Start-Isolation.bat
+Setup-WSL.bat
 README.md
 LICENSE
 .gitignore

@@ -1,9 +1,8 @@
-import { loadPolicy } from '../core/policy.mjs';
 import { wslContext } from '../wsl/doctor.mjs';
-import { isWslDaemonAlive, startWslDaemon } from '../wsl/wsl.mjs';
+import { isWslDaemonAlive, loadWslPolicy, startWslDaemon } from '../wsl/wsl.mjs';
 
 export class RuntimeConnection {
-  constructor({ getPolicy = loadPolicy, createTransport } = {}) {
+  constructor({ getPolicy = loadWslPolicy, createTransport } = {}) {
     if (typeof createTransport !== 'function') throw Error('RUNTIME_TRANSPORT_REQUIRED');
     this.getPolicy = getPolicy;
     this.createTransport = createTransport;
@@ -26,7 +25,7 @@ export class RuntimeConnection {
 
   async context() {
     try {
-      const policy = this.getPolicy();
+      const policy = await this.getPolicy();
       if (
         !this.current ||
         this.current.distro !== policy.runtime.distro ||

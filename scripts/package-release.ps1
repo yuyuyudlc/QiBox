@@ -6,8 +6,8 @@ $archivePath = Join-Path $out 'Isolation Console.zip'
 $temp = Join-Path $out ([Guid]::NewGuid().ToString() + '.zip')
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$files = @('Isolation Console.exe', 'LICENSE', 'README.md', 'Start-Isolation.bat',
-    'scripts/start-console.ps1', 'config/isolation.example.json',
+$files = @('Isolation Console.exe', 'LICENSE', 'README.md', 'Start-Isolation.bat', 'Setup-WSL.bat',
+    'scripts/start-console.ps1', 'scripts/setup-wsl.sh', 'config/isolation.example.json',
     'package.json', 'package-lock.json')
 $sourceDir = Join-Path $root 'src'
 $files += Get-ChildItem -LiteralPath $sourceDir -Recurse -File | Sort-Object FullName | ForEach-Object {

@@ -8,7 +8,7 @@ export function clearWslContextCache() {
 
 export async function wslContext(policy, { fresh = false, ttlMs = 10000 } = {}) {
   const distro = policy?.runtime?.distro || 'Ubuntu';
-  const user = policy?.runtime?.user || 'agent';
+  const user = policy.runtime.user;
   if (!fresh && cachedContext && cachedContext.distro === distro && cachedContext.user === user && Date.now() - cachedContext.at < ttlMs) {
     return { ...cachedContext.value };
   }
@@ -22,6 +22,9 @@ export async function wslContext(policy, { fresh = false, ttlMs = 10000 } = {}) 
   if (target.version !== 2) {
     cachedContext = null;
     return { available: false, distro, user, reason: `WSL 发行版 ${distro} 不是 WSL2 (当前版本: ${target.version})` };
+  }
+  if (!user) {
+    return { available: false, distro, user, reason: `无法读取 ${distro} 的默认普通用户。请先打开该发行版完成初始化，或在设置中选择已有的 Linux 用户。` };
   }
 
   const check = await runWsl(
@@ -74,7 +77,7 @@ export async function doctor(p) {
     wsl,
     readyForRuntime: wsl.available && wsl.dependenciesReady,
     nextActions: !wsl.available
-      ? [`Install WSL2 distro ${p.runtime.distro}: wsl --install -d ${p.runtime.distro}`]
+      ? [wsl.reason]
       : !wsl.dependenciesReady
         ? ['Ensure Node.js 24, Claude Code, and /opt/isolation (@anthropic-ai/claude-agent-sdk + node-pty) are installed in WSL2.']
         : [],

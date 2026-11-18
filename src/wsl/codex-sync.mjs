@@ -6,7 +6,7 @@ import { runWsl } from './wsl.mjs';
 
 const hash = (s) => createHash('sha256').update(s).digest('hex');
 
-export function readCodexSource({ home = os.homedir(), env = process.env, user = 'agent' } = {}) {
+export function readCodexSource({ home = os.homedir(), env = process.env, user } = {}) {
   const base = env.CODEX_HOME || path.join(home, '.codex');
   if (!path.isAbsolute(base)) throw Error('CODEX_HOME 必须是绝对路径。');
   const file = path.join(base, 'auth.json');
@@ -24,7 +24,7 @@ export function readCodexSource({ home = os.homedir(), env = process.env, user =
         sourcePath: file,
         modifiedAt: stat.mtime.toISOString(),
         sourceHash: hash(file + '\0' + raw),
-        targetPath: `/home/${user}/.codex/auth.json`,
+        targetPath: `${user ? `/home/${user}` : '~'}/.codex/auth.json`,
       },
     };
   } catch {

@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { ROOT, POLICY_PATH, loadPolicy, validatePolicy, validateWorkspace } from './core/policy.mjs';
 import { clearWslContextCache, wslContext } from './wsl/doctor.mjs';
 import { runtimeSnapshot, clearRuntimeStateCache } from './wsl/runtime-state.mjs';
-import { startWslDaemon, stopWslDaemon, listWslDistros } from './wsl/wsl.mjs';
+import { startWslDaemon, stopWslDaemon, listWslDistros, loadWslPolicy } from './wsl/wsl.mjs';
 import { syncInfo, syncClaude } from './wsl/claude-sync.mjs';
 import { readCodexSource, syncCodex } from './wsl/codex-sync.mjs';
 import { RuntimeClient } from './agent/runtime-client.mjs';
@@ -53,17 +53,20 @@ export function createConsoleDispatcher({ handle = handleRequest, onMutated = ()
 }
 
 export async function savePolicy(payload, { policyPath = POLICY_PATH, getRuntime = runtimeSnapshot } = {}) {
-  const current = JSON.parse(fs.readFileSync(policyPath, 'utf8').replace(/^\uFEFF/, ''));
+  const readCurrent = () => fs.existsSync(policyPath)
+    ? JSON.parse(fs.readFileSync(policyPath, 'utf8').replace(/^\uFEFF/, ''))
+    : loadPolicy(policyPath);
+  const current = readCurrent();
   if (payload.expectedHash !== hash(current)) throw new Error('配置已被其他窗口或命令修改，请重新加载后再保存');
   const next = validatePolicy(payload.policy);
   validateWorkspace(next);
   if (next.projectName !== current.projectName) throw new Error('桌面界面不支持重命名受管项目');
-  const runtime = await getRuntime(validatePolicy(current));
+  const runtime = await getRuntime(validatePolicy(current, { allowUnresolvedUser: true }));
   if (runtime.running) throw new Error('请先停止当前运行环境，再保存配置');
   const temp = path.join(path.dirname(policyPath), `.isolation-${randomUUID()}.tmp`);
   try {
     fs.writeFileSync(temp, JSON.stringify(next, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
-    const latest = JSON.parse(fs.readFileSync(policyPath, 'utf8').replace(/^\uFEFF/, ''));
+    const latest = readCurrent();
     if (payload.expectedHash !== hash(latest)) throw new Error('配置在保存前发生变化，请重新加载');
     fs.renameSync(temp, policyPath);
   } finally {
@@ -75,8 +78,11 @@ export async function savePolicy(payload, { policyPath = POLICY_PATH, getRuntime
 export async function handleRequest(request) {
   const { action, payload = {} } = request;
   if (action === 'claude_sync') {
-    if (payload.operation === 'codex_info') return readCodexSource({ user: loadPolicy().runtime.user }).preview;
-    if (payload.operation === 'codex_sync') return syncCodex(payload.expectedSourceHash, loadPolicy(), { getRuntime: runtimeSnapshot });
+    if (payload.operation === 'codex_info') {
+      const policy = await loadWslPolicy();
+      return readCodexSource({ user: policy.runtime.user }).preview;
+    }
+    if (payload.operation === 'codex_sync') return syncCodex(payload.expectedSourceHash, await loadWslPolicy(), { getRuntime: runtimeSnapshot });
     if (payload.operation === 'reset') {
       const client = new RuntimeClient();
       try {
@@ -94,15 +100,15 @@ export async function handleRequest(request) {
         client.close();
       }
     }
-    const policy = loadPolicy();
+    const policy = await loadWslPolicy();
     if (payload.operation === 'info') return syncInfo(policy);
     if (payload.operation === 'sync') return syncClaude({ expectedSourceHash: payload.expectedSourceHash }, policy, { getRuntime: runtimeSnapshot });
     throw new Error('不允许的 Claude 配置操作');
   }
   if (action === 'snapshot') {
-    const policy = loadPolicy();
+    const policy = await loadWslPolicy();
     const [runtime, wslDistros] = await Promise.all([
-      runtimeSnapshot(policy),
+      runtimeSnapshot(policy, { fresh: true }),
       listWslDistros().catch(() => []),
     ]);
     return {
@@ -123,10 +129,12 @@ export async function handleRequest(request) {
   if (action === 'save') return savePolicy(payload);
   if (action === 'operation') {
     if (!['up', 'stop'].includes(payload.operation)) throw new Error('不允许的操作');
-    const policy = loadPolicy();
-    if (payload.operation === 'up') {
+    const policy = await loadWslPolicy();
+    if (payload.operation === 'up' || !policy.runtime.user) {
       const wsl = await wslContext(policy, { fresh: true });
       if (!wsl.available || !wsl.dependenciesReady) throw new Error(wsl.reason);
+    }
+    if (payload.operation === 'up') {
       await startWslDaemon(policy, { keepChild: true });
       return { ok: true, code: 0, output: 'WSL2 daemon started', error: null };
     }
