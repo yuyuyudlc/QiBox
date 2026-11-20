@@ -60,12 +60,12 @@ npm install --prefix /opt/isolation @anthropic-ai/claude-agent-sdk@0.3.323 node-
 
 ## 数据与配置位置
 
-| 路径 | 说明 |
-| --- | --- |
-| `config/isolation.json` | 本机 WSL2 发行版、用户、工作目录与代理配置（基于 `isolation.example.json`） |
-| `config/chat.local.json` | 翻译偏好与 API 密钥（仅本机保存，不入库） |
-| `.runtime/` | 聊天数据库、运行状态与后台日志（`wsl-daemon.log`） |
-| WSL2 `/workspace` & `~/.claude` | 默认项目目录、Claude 历史与会话索引 |
+| 路径                            | 说明                                                                        |
+| ------------------------------- | --------------------------------------------------------------------------- |
+| `config/isolation.json`         | 本机 WSL2 发行版、用户、工作目录与代理配置（基于 `isolation.example.json`） |
+| `config/chat.local.json`        | 翻译偏好与 API 密钥（仅本机保存，不入库）                                   |
+| `.runtime/`                     | 聊天数据库、运行状态与后台日志（`wsl-daemon.log`）                          |
+| WSL2 `/workspace` & `~/.claude` | 默认项目目录、Claude 历史与会话索引                                         |
 
 > 修改环境配置前请先停止后台服务，保存后再重新启动。
 
@@ -89,12 +89,9 @@ cd ..
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-release.ps1
 ```
 
-## 常见问题
+## LINUX DO 社区
 
-- **环境检查失败**：在终端确认 `node --version` 与 `wsl -l -v`，确保发行版名称和版本（2）与设置一致。
-- **WSL2 后台无法启动**：检查 `/usr/local/bin:/usr/bin:/bin` 下的 `node`/`claude`、`/opt/isolation/node_modules` 依赖及目录写权限，详情查看 `.runtime/wsl-daemon.log`。
-- **翻译返回 404 或失败**：核对 API 基础地址是否缺少 `/v1` 或误填了 `/chat/completions`，以及模型 ID 与密钥是否有效。
-- **构建时无法覆盖 EXE**：先关闭正在运行的栖盒窗口再重新构建。
+感谢 [Linux.do](https://linux.do) 社区的支持与贡献。
 
 ## 许可证
 
